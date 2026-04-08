@@ -32,5 +32,3 @@ pool.getConnection()
   .catch(err => {
     console.error('❌ Error de conexión a MySQL:', err.message)
   })
-
-export { pool }  // ← Agrega esta línea al final

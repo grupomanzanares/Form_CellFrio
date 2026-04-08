@@ -11,3 +11,16 @@ export const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10
 })
+
+// Mensaje de conexión exitosa (se ejecuta al importar)
+pool.getConnection()
+  .then(conn => {
+    console.log('✅ Conexión a MySQL exitosa')
+    console.log(`📦 Base de datos: ${process.env.DB_NAME}`)
+    conn.release()
+  })
+  .catch(err => {
+    console.error('❌ Error de conexión a MySQL:', err.message)
+  })
+
+export default pool

@@ -1,2 +1,20 @@
-server/node_modules/
-server/.env/
+# dependencias
+node_modules/
+**/node_modules/
+
+# variables de entorno
+.env
+**/.env
+
+# build
+dist/
+build/
+**/dist/
+**/build/
+
+# logs
+*.log
+
+# archivos del sistema
+.DS_Store
+Thumbs.db

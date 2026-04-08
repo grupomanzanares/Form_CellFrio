@@ -26,9 +26,9 @@ app.get('/', async (req, res) => {
   }
 })
 
-app.use('/api/auth', authRoutes)
-app.use('/api/usuarios', usuariosRoutes)
-app.use('/api/clientes', clientesRoutes)
-app.use('/api/entradas', entradasRoutes) 
+app.use('/cellfrio/auth', authRoutes)
+app.use('/cellfrio/usuarios', usuariosRoutes)
+app.use('/cellfrio/clientes', clientesRoutes)
+app.use('/cellfrio/entradas', entradasRoutes)
 
 export default app

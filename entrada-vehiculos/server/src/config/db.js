@@ -1,7 +1,18 @@
 import mysql from 'mysql2/promise'
 import dotenv from 'dotenv'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-dotenv.config()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const envPath = path.join(__dirname, '..', '..', '.env')
+dotenv.config({ path: envPath })
+
+console.log('🔍 Ruta del .env:', envPath)
+console.log('📦 DB_USER:', process.env.DB_USER)
+console.log('📦 DB_HOST:', process.env.DB_HOST)
+console.log('📦 PORT:', process.env.PORT)
 
 export const pool = mysql.createPool({
   host: process.env.DB_HOST,
@@ -12,7 +23,6 @@ export const pool = mysql.createPool({
   connectionLimit: 10
 })
 
-// Mensaje de conexión exitosa (se ejecuta al importar)
 pool.getConnection()
   .then(conn => {
     console.log('✅ Conexión a MySQL exitosa')
@@ -23,4 +33,4 @@ pool.getConnection()
     console.error('❌ Error de conexión a MySQL:', err.message)
   })
 
-export default pool
+export { pool }  // ← Agrega esta línea al final

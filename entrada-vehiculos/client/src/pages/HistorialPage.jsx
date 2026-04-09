@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../services/api'
+import ClientAutocomplete from '../components/ClientAutocomplete'
 
 const inputClass =
   "w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
@@ -9,7 +10,7 @@ export default function HistorialPage() {
     fechaInicio: '',
     fechaFin: '',
     placa: '',
-    cliente: ''
+    cliente: null  // ← Cambiado a null para guardar objeto cliente
   })
 
   const [rows, setRows] = useState([])
@@ -22,7 +23,7 @@ export default function HistorialPage() {
       if (filters.fechaInicio) params.append('fechaInicio', filters.fechaInicio)
       if (filters.fechaFin) params.append('fechaFin', filters.fechaFin)
       if (filters.placa) params.append('placa', filters.placa)
-      if (filters.cliente) params.append('cliente', filters.cliente)
+      if (filters.cliente?.nombre) params.append('cliente', filters.cliente.nombre)
       
       const { data } = await api.get(`/entradas?${params.toString()}`)
       setRows(data)
@@ -41,13 +42,19 @@ export default function HistorialPage() {
     setFilters(prev => ({ ...prev, [field]: value }))
   }
 
+  const handleClientSelect = (cliente) => {
+    setFilters(prev => ({ ...prev, cliente }))
+  }
+
   const handleReset = () => {
     setFilters({
       fechaInicio: '',
       fechaFin: '',
       placa: '',
-      cliente: ''
+      cliente: null
     })
+    // Opcional: recargar datos después de limpiar
+    setTimeout(() => loadData(), 100)
   }
 
   useEffect(() => {
@@ -125,12 +132,10 @@ export default function HistorialPage() {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-slate-500">Cliente</label>
-              <input
-                type="text"
-                placeholder="Nombre del cliente"
-                className={inputClass}
-                value={filters.cliente}
-                onChange={(e) => handleFilterChange('cliente', e.target.value)}
+              <ClientAutocomplete 
+                value={filters.cliente} 
+                onSelect={handleClientSelect}
+                placeholder="Buscar cliente..."
               />
             </div>
           </div>
@@ -201,7 +206,7 @@ export default function HistorialPage() {
                       <td className="px-4 py-3 text-slate-600">{item.usuario}</td>
                       <td className="px-4 py-3 text-center">
                         <button
-                          onClick={() => window.open(`/impresion/${item.id}`, '_blank')}
+                          onClick={() => window.open(`${window.location.origin}/cellfrio-web/impresion/${item.id}`, '_blank')}
                           className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">

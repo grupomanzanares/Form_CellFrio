@@ -40,10 +40,22 @@ router.post('/', async (req, res) => {
 
     const placaLimpia = placa.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6)
 
+    // 🔴 NUEVO: Obtener el último consecutivo para este cliente
+    const [lastEntry] = await connection.query(
+      'SELECT MAX(cliente_consecutivo) as max_consecutivo FROM entradas WHERE cliente_id = ?',
+      [cliente_id]
+    )
+    
+    const nextConsecutivo = (lastEntry[0].max_consecutivo || 0) + 1
+    const numeroEntradaCliente = `${cliente_id}-${nextConsecutivo}`
+
+    // 🔴 MODIFICADO: Insertar incluyendo las nuevas columnas
     const [result] = await connection.query(
       `INSERT INTO entradas (
         fecha_hora,
         cliente_id,
+        cliente_consecutivo,
+        numero_entrada_cliente,
         placa,
         nom_conductor,
         num_canastas,
@@ -52,10 +64,12 @@ router.post('/', async (req, res) => {
         recibe,
         responsable,
         usuario_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         fecha_hora,
         cliente_id,
+        nextConsecutivo,
+        numeroEntradaCliente,
         placaLimpia,
         nom_conductor,
         num_canastas,
@@ -83,9 +97,12 @@ router.post('/', async (req, res) => {
 
     await connection.commit()
 
+    // 🔴 MODIFICADO: Devolver el número de entrada personalizado
     res.status(201).json({
       message: 'Entrada registrada correctamente',
-      id: entradaId
+      id: entradaId,
+      numero_entrada_cliente: numeroEntradaCliente,
+      cliente_consecutivo: nextConsecutivo
     })
   } catch (error) {
     await connection.rollback()
@@ -100,10 +117,12 @@ router.get('/', async (req, res) => {
   try {
     const { fechaInicio, fechaFin, placa = '', cliente = '' } = req.query
 
+    // 🔴 MODIFICADO: Agregar numero_entrada_cliente a la consulta
     const [rows] = await pool.query(
       `SELECT
           e.id,
           e.fecha_hora,
+          e.numero_entrada_cliente,
           c.nombre AS cliente,
           e.placa,
           e.nom_conductor,
@@ -138,9 +157,12 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params
 
+    // 🔴 MODIFICADO: Agregar las nuevas columnas a la consulta
     const [rows] = await pool.query(
       `SELECT
           e.*,
+          e.numero_entrada_cliente,
+          e.cliente_consecutivo,
           c.nombre AS cliente,
           c.nit,
           u.nombre AS usuario

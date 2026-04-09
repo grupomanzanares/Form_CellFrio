@@ -87,7 +87,7 @@ export default function EntradaFormPage() {
       };
 
       const { data } = await api.post("/entradas", payload);
-      window.open(`/impresion/${data.id}`, "_blank");
+      window.open(`${window.location.origin}/cellfrio-web/impresion/${data.id}`, "_blank");
       alert(`Entrada registrada correctamente. ID: ${data.id}`);
 
       setCliente(null);

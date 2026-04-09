@@ -8,6 +8,13 @@ export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState([])
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [editForm, setEditForm] = useState({
+    nombre: '',
+    rol_id: 2,
+    status: 1,
+    clave: ''
+  })
 
   const [form, setForm] = useState({
     nombre: '',
@@ -63,6 +70,72 @@ export default function UsuariosPage() {
       alert(error.response?.data?.message || 'Error al crear usuario')
     } finally {
       setCreating(false)
+    }
+  }
+
+  // Iniciar edición
+  const startEdit = (usuario) => {
+    setEditingId(usuario.id)
+    setEditForm({
+      nombre: usuario.nombre,
+      rol_id: usuario.rol_id,
+      status: usuario.status,
+      clave: '' // La contraseña se deja vacía, solo se actualiza si se escribe
+    })
+  }
+
+  // Cancelar edición
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditForm({
+      nombre: '',
+      rol_id: 2,
+      status: 1,
+      clave: ''
+    })
+  }
+
+  // Actualizar usuario
+  const handleUpdate = async (id) => {
+    if (!editForm.nombre.trim()) {
+      alert('El nombre es obligatorio')
+      return
+    }
+
+    try {
+      // Solo enviar clave si se escribió una nueva
+      const updateData = {
+        nombre: editForm.nombre,
+        rol_id: editForm.rol_id,
+        status: editForm.status
+      }
+      
+      if (editForm.clave && editForm.clave.trim()) {
+        updateData.clave = editForm.clave
+      }
+
+      await api.put(`/usuarios/${id}`, updateData)
+      alert('Usuario actualizado correctamente')
+      cancelEdit()
+      loadUsuarios()
+    } catch (error) {
+      console.error(error)
+      alert(error.response?.data?.message || 'Error al actualizar usuario')
+    }
+  }
+
+  // Eliminar (inactivar) usuario
+  const handleDelete = async (id) => {
+    const ok = window.confirm('¿Desea inactivar este usuario?')
+    if (!ok) return
+
+    try {
+      await api.delete(`/usuarios/${id}`)
+      alert('Usuario inactivado correctamente')
+      loadUsuarios()
+    } catch (error) {
+      console.error(error)
+      alert(error.response?.data?.message || 'Error al inactivar usuario')
     }
   }
 
@@ -201,13 +274,14 @@ export default function UsuariosPage() {
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Nombre</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Rol</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Estado</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Acciones</th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan="4" className="px-4 py-12 text-center">
+                    <td colSpan="5" className="px-4 py-12 text-center">
                       <div className="flex items-center justify-center gap-2 text-slate-400">
                         <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -219,7 +293,7 @@ export default function UsuariosPage() {
                   </tr>
                 ) : usuarios.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="px-4 py-12 text-center">
+                    <td colSpan="5" className="px-4 py-12 text-center">
                       <div className="flex flex-col items-center gap-2 text-slate-400">
                         <svg className="h-12 w-12" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -234,14 +308,45 @@ export default function UsuariosPage() {
                       <td className="whitespace-nowrap px-4 py-3 font-mono text-slate-600">
                         {usuario.id}
                       </td>
-                      <td className="px-4 py-3 font-medium text-slate-900">
-                        {usuario.nombre}
-                      </td>
+                      
                       <td className="px-4 py-3">
-                        {getRolBadge(usuario.rol)}
+                        {editingId === usuario.id ? (
+                          <input
+                            value={editForm.nombre}
+                            onChange={(e) => setEditForm({ ...editForm, nombre: e.target.value })}
+                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200"
+                          />
+                        ) : (
+                          <span className="font-medium text-slate-900">{usuario.nombre}</span>
+                        )}
                       </td>
+                      
                       <td className="px-4 py-3">
-                        {usuario.status === 1 ? (
+                        {editingId === usuario.id ? (
+                          <select
+                            value={editForm.rol_id}
+                            onChange={(e) => setEditForm({ ...editForm, rol_id: Number(e.target.value) })}
+                            className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200"
+                          >
+                            <option value={1}>ADMIN</option>
+                            <option value={2}>USUARIO</option>
+                          </select>
+                        ) : (
+                          getRolBadge(usuario.rol)
+                        )}
+                      </td>
+                      
+                      <td className="px-4 py-3">
+                        {editingId === usuario.id ? (
+                          <select
+                            value={editForm.status}
+                            onChange={(e) => setEditForm({ ...editForm, status: Number(e.target.value) })}
+                            className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200"
+                          >
+                            <option value={1}>Activo</option>
+                            <option value={0}>Inactivo</option>
+                          </select>
+                        ) : usuario.status === 1 ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
                             <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                             Activo
@@ -251,6 +356,43 @@ export default function UsuariosPage() {
                             <span className="h-1.5 w-1.5 rounded-full bg-red-500"></span>
                             Inactivo
                           </span>
+                        )}
+                      </td>
+                      
+                      <td className="px-4 py-3">
+                        {editingId === usuario.id ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleUpdate(usuario.id)}
+                              className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                              Guardar
+                            </button>
+                            <button
+                              onClick={cancelEdit}
+                              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => startEdit(usuario)}
+                              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                              Editar
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>

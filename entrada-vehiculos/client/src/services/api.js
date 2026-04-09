@@ -2,6 +2,7 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: 'https://gmanzanares.com.co/cellfrio'
+  // baseURL: 'http://localhost:4000/api'
 })
 
 api.interceptors.request.use((config) => {

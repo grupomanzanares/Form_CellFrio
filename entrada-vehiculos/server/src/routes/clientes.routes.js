@@ -15,11 +15,7 @@ router.get('/', async (req, res) => {
     const [rows] = await pool.query(
       `SELECT id, nit, nombre, status
        FROM clientes
-       WHERE status = 1
-         AND nombre LIKE ?
-       ORDER BY nombre ASC
-       LIMIT 20`,
-      [`${search}%`]
+       ORDER BY id DESC`
     )
 
     res.json(rows)

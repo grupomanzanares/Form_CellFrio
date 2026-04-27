@@ -125,7 +125,7 @@ export default function EntradaFormPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Registro de entrada</h1>
+              <h1 className="text-xl font-bold text-slate-900">Registro de salida </h1>
               <p className="text-sm text-slate-500">Complete los datos del vehículo y la carga</p>
             </div>
           </div>
@@ -235,12 +235,12 @@ export default function EntradaFormPage() {
                 />
               </Field>
               <Field label="Responsable" hint="Opcional">
-                <input
-                  value={form.responsable}
-                  onChange={(e) => handleChange("responsable", e.target.value)}
-                  className={inputClass}
-                  placeholder="Nombre del responsable"
-                />
+                <select value={form.responsable} onChange={(e) => handleChange("responsable", e.target.value)} className={inputClass}>
+                  <option value="">Seleccionar responsable</option>
+                  <option value="Jonatan Castro">Jonatan Castro</option>
+                  <option value="Yesid Arcila">Yesid Arcila</option>
+                  <option value="Vladimir León">Vladimir León</option>
+                </select>
               </Field>
             </div>
 

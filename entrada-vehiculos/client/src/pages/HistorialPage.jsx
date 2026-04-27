@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import api from '../services/api'
 import ClientAutocomplete from '../components/ClientAutocomplete'
+import * as XLSX from 'xlsx'
 
 const inputClass =
   "w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
@@ -60,6 +61,28 @@ export default function HistorialPage() {
   useEffect(() => {
     loadData()
   }, [])
+
+  const exportarExcel = () => {
+    const datos = rows.map((item) => ({
+      Fecha: new Date(item.fecha_hora).toLocaleString(),
+      Cliente: item.cliente,
+      NIT: item.nit || '',
+      'N° Entrada': item.numero_entrada_cliente || item.id,
+      Placa: item.placa,
+      Conductor: item.nom_conductor,
+      Canastas: item.num_canastas ?? 0,
+      Canastillas: item.num_canastillas ?? 0,
+      Sello: item.sello || '',
+      Recibe: item.recibe || '',
+      Responsable: item.responsable || '',
+      Usuario: item.usuario,
+    }))
+
+    const hoja = XLSX.utils.json_to_sheet(datos)
+    const libro = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(libro, hoja, 'Historial')
+    XLSX.writeFile(libro, `historial-celfrio-${new Date().toLocaleDateString('es-CO')}.xlsx`)
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -150,6 +173,12 @@ export default function HistorialPage() {
               </svg>
               Buscar
             </button>
+            <button onClick={exportarExcel} disabled={rows.length === 0} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Exportar Excel
+            </button>
           </div>
         </div>
 
@@ -161,8 +190,11 @@ export default function HistorialPage() {
                 <tr className="border-b border-slate-200 bg-slate-50">
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Fecha</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Cliente</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">N° Entrada</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Placa</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Conductor</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Canastas</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Canastillas</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Sello</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Usuario</th>
                   <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Acción</th>
@@ -200,8 +232,11 @@ export default function HistorialPage() {
                         {new Date(item.fecha_hora).toLocaleString()}
                       </td>
                       <td className="px-4 py-3 font-medium text-slate-900">{item.cliente}</td>
+                      <td className="whitespace-nowrap px-4 py-3 font-mono text-slate-600">{item.numero_entrada_cliente || item.id}</td>
                       <td className="px-4 py-3 font-mono tracking-wider text-slate-600">{item.placa}</td>
                       <td className="px-4 py-3 text-slate-600">{item.nom_conductor}</td>
+                      <td className="px-4 py-3 font-mono text-slate-600">{item.num_canastas ?? '—'}</td>
+                      <td className="px-4 py-3 font-mono text-slate-600">{item.num_canastillas ?? '—'}</td>
                       <td className="px-4 py-3 font-mono text-slate-600">{item.sello || '—'}</td>
                       <td className="px-4 py-3 text-slate-600">{item.usuario}</td>
                       <td className="px-4 py-3 text-center">

@@ -126,6 +126,8 @@ router.get('/', async (req, res) => {
           c.nombre AS cliente,
           e.placa,
           e.nom_conductor,
+          e.num_canastas,
+          e.num_canastillas,
           e.sello,
           u.nombre AS usuario
        FROM entradas e

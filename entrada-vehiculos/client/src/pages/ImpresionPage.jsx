@@ -104,7 +104,7 @@ export default function ImpresionPage() {
                 Comprobante de ingreso
               </p>
               <p className="text-xs text-slate-500">
-                ID #{id} · Media carta
+                ID {data.numero_entrada_cliente || `#${data.id}`} · Media carta
               </p>
             </div>
           </div>
@@ -128,22 +128,20 @@ export default function ImpresionPage() {
         <div className="mx-auto w-[139.7mm] bg-white font-sans text-[8pt] text-slate-900 shadow-xl print:w-full print:shadow-none">
           
           {/* Header - Neutro */}
-          <div className="mb-0 flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4">
-            <div>
-              <div className="text-[12pt] font-bold text-slate-800 leading-none tracking-[-0.3px]">
-                Centro de Refrigeración
-              </div>
-              <div className="mt-1 text-[6.5pt] text-slate-500 tracking-[0.3px]">
-                Comprobante de ingreso de vehículo
-              </div>
-            </div>
+          <div className="mb-0 flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-2">
+            <img
+              src={`${import.meta.env.BASE_URL}Logo-Celfrio.png`}
+              alt="Logo CelFrio"
+              className="h-16 w-auto object-contain"
+              style={{ filter: 'brightness(0)' }}
+            />
 
             <div className="bg-white px-4 py-2 text-center shadow-sm border border-slate-200">
               <div className="text-[5.5pt] font-bold uppercase tracking-[1px] text-slate-500">
                 N° Ingreso
               </div>
               <div className="font-mono text-[16pt] font-medium leading-none text-slate-800">
-                #{id}
+                {data.numero_entrada_cliente || `#${data.id}`}
               </div>
             </div>
           </div>
@@ -222,7 +220,7 @@ export default function ImpresionPage() {
               Generado: <strong className="text-white/90">{new Date().toLocaleDateString('es-CO')}</strong>
             </span>
             <strong className="text-white/90">
-              Centro de Refrigeración · Ingreso #{id}
+              CelFrio · Ingreso {data.numero_entrada_cliente || `#${data.id}`}
             </strong>
           </div>
         </div>

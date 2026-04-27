@@ -54,8 +54,20 @@ export default function HistorialPage() {
       placa: '',
       cliente: null
     })
-    // Opcional: recargar datos después de limpiar
-    setTimeout(() => loadData(), 100)
+
+    const loadEmpty = async () => {
+      try {
+        setLoading(true)
+        const { data } = await api.get('/entradas')
+        setRows(data)
+      } catch (error) {
+        console.error(error)
+        alert('Error al cargar el historial')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadEmpty()
   }
 
   useEffect(() => {
@@ -66,15 +78,12 @@ export default function HistorialPage() {
     const datos = rows.map((item) => ({
       Fecha: new Date(item.fecha_hora).toLocaleString(),
       Cliente: item.cliente,
-      NIT: item.nit || '',
       'N° Entrada': item.numero_entrada_cliente || item.id,
       Placa: item.placa,
       Conductor: item.nom_conductor,
       Canastas: item.num_canastas ?? 0,
       Canastillas: item.num_canastillas ?? 0,
       Sello: item.sello || '',
-      Recibe: item.recibe || '',
-      Responsable: item.responsable || '',
       Usuario: item.usuario,
     }))
 
@@ -97,7 +106,7 @@ export default function HistorialPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Historial de entradas</h1>
+              <h1 className="text-xl font-bold text-slate-900">Historial de salidas</h1>
               <p className="text-sm text-slate-500">Consulte y gestione los registros anteriores</p>
             </div>
           </div>

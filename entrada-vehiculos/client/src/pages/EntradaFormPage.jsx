@@ -45,7 +45,13 @@ export default function EntradaFormPage() {
     if (field === "placa") {
       value = value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
     }
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => {
+      const updated = { ...prev, [field]: value }
+      if (field === "nom_conductor") {
+        updated.recibe = value
+      }
+      return updated
+    });
   };
 
   const handleEncargadoChange = (index, value) => {

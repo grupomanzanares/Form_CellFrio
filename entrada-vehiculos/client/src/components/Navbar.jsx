@@ -14,7 +14,7 @@ export default function Navbar() {
   }
 
   const links = [
-    { to: '/', label: 'Nueva entrada', icon: (
+    { to: '/', label: 'Nueva Salida', icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
       </svg>
@@ -45,17 +45,14 @@ export default function Navbar() {
 
           {/* Logo / Brand */}
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
+            <div className="flex h-18 w-auto items-center justify-center">
+              <img src={`${import.meta.env.BASE_URL}Logo-Celfrio.png`} alt="Logo CelFrio" className="h-18 w-auto object-contain" style={{ filter: 'brightness(0)' }} />
             </div>
-            <div className="hidden sm:block">
-              <p className="text-sm font-bold text-slate-900 leading-tight">Centro de Refrigeración</p>
+            {/* <div className="hidden sm:block">
               <p className="text-xs text-slate-400 leading-tight">
-                {user?.nombre}{user?.rol ? ` · ${user.rol}` : ''}
+                {user?.nombre}
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* Desktop nav */}
